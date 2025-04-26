@@ -3,6 +3,8 @@ const API_URL = "https://mushroom-disease-predictor.onrender.com/predict";
 const preview = document.getElementById("preview");
 const imageInput = document.getElementById("imageInput");
 const results = document.getElementById("results");
+const loading = document.getElementById("loading");
+const predictBtn = document.getElementById("predictBtn");
 
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
@@ -21,7 +23,9 @@ async function predict() {
   const formData = new FormData();
   formData.append("file", file);
 
-  results.innerHTML = "Predicting...";
+  // Show loading spinner and disable button
+  loading.style.display = "block";
+  predictBtn.disabled = true;
 
   try {
     const response = await fetch(API_URL, {
@@ -44,6 +48,10 @@ async function predict() {
     console.error("Prediction error:", error);
     results.innerHTML = "Something went wrong. Try again.";
   }
+
+  // Hide loading spinner and re-enable button
+  loading.style.display = "none";
+  predictBtn.disabled = false;
 }
 
 function getRecommendation(disease) {

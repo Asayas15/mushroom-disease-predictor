@@ -9,12 +9,13 @@
 <body>
   <div class="container">
     <h1>Mushroom Disease Predictor</h1>
-    
+
     <input type="file" accept="image/*" id="imageInput" />
     <img id="preview" src="" alt="Image preview" />
 
-    <button onclick="predict()">Predict Disease</button>
+    <button onclick="predict()" id="predictBtn">Predict Disease</button>
 
+    <div id="loading" class="loading">Loading...</div>
     <div id="results"></div>
   </div>
 

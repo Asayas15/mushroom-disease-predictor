@@ -30,12 +30,22 @@ async def ping():
 
 def read_file_as_image(data) -> np.ndarray:
     image = Image.open(BytesIO(data))
-    # Resize the image to match model input size (e.g., 224x224)
+    
+    # Make sure image is RGB
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+    
+    # Resize image to model's expected size (example: 224x224)
     image = image.resize((224, 224))
-    image = np.array(image)
-    # Normalize the image to have pixel values between 0 and 1
+    
+    # Convert to numpy array
+    image = np.array(image).astype(np.float32)
+    
+    # Normalize pixel values between 0 and 1
     image = image / 255.0
+
     return image
+
 
 @app.post("/predict")
 async def predict(
