@@ -7,11 +7,34 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+    <div class="language-selector">
+        <label><input type="radio" name="language" value="en" checked> English</label>
+        <label><input type="radio" name="language" value="fil"> Filipino</label>
+        <label><input type="radio" name="language" value="ilo"> Ilocano</label>
+      </div>      
+    <div id="disclaimerModal" class="modal">
+        <div class="modal-content">
+          <h2>Disclaimer</h2>
+          <p>This Oyster Mushroom Disease Classifier is currently under development. Predictions may not always be accurate and should be used for informational purposes only. Always consult agricultural experts for critical decisions.</p>
+          <button onclick="closeDisclaimer()">I Understand</button>
+        </div>
+      </div>      
   <div class="container">
     <h1>Mushroom Disease Predictor</h1>
 
-    <input type="file" accept="image/*" id="imageInput" />
-    <img id="preview" src="" alt="Image preview" />
+    <label for="imageInput" class="custom-file-upload">
+        Choose a Mushroom Image
+      </label>
+      <input type="file" accept="image/*" id="imageInput" style="display: none;" />
+      
+      <div class="preview-wrapper" id="previewWrapper" style="display:none;">
+        <img id="preview" src="" alt="Image preview" />
+        <div id="scanner" class="scan-overlay" style="display: none;">
+          <div class="scan-line"></div>
+        </div>
+      </div>
+      
+      
 
     <button onclick="predict()" id="predictBtn">Predict Disease</button>
 
