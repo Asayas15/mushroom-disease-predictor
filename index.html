@@ -7,12 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="language-selector">
-        <label><input type="radio" name="language" value="en" checked> English</label>
-        <label><input type="radio" name="language" value="fil"> Filipino</label>
-        <label><input type="radio" name="language" value="ilo"> Ilocano</label>
-      </div>      
+<body>     
     <div id="disclaimerModal" class="modal">
         <div class="modal-content">
           <h2>Disclaimer</h2>
@@ -20,7 +15,13 @@
           <button onclick="closeDisclaimer()">I Understand</button>
         </div>
       </div>      
-      <div class="container">
+      <div class="language-selector" style="position: fixed; top: 10px; right: 10px; z-index: 1000; background-color: rgba(255, 255, 255, 0.8); padding: 8px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">
+        <label><input type="radio" name="language" value="en" checked> English</label>
+        <label><input type="radio" name="language" value="fil"> Filipino</label>
+        <label><input type="radio" name="language" value="ilo"> Ilocano</label>
+      </div> 
+      
+      <div class="container" style="margin-top: 50px;">
         <h1>Mushroom Disease Predictor</h1>
 
         <!-- File Upload and Capture Buttons -->
@@ -29,6 +30,7 @@
           <input type="file" id="imageInput" accept="image/*" style="display: none;">
           <button id="openCameraBtn" class="capture-btn">Capture Image</button>
       </div>
+
 
 <!-- Preview -->
 <!-- Preview -->
