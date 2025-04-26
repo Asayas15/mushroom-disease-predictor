@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -21,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 MODEL = tf.keras.models.load_model("models/model.h5")
 
 CLASS_NAMES = ["Bacterial Blotch", "Dry Bubble", "Healthy", "Trichoderma", "Wilt"]
@@ -31,12 +29,17 @@ async def ping():
     return "Hello, I am alive"
 
 def read_file_as_image(data) -> np.ndarray:
-    image = np.array(Image.open(BytesIO(data)))
+    image = Image.open(BytesIO(data))
+    # Resize the image to match model input size (e.g., 224x224)
+    image = image.resize((224, 224))
+    image = np.array(image)
+    # Normalize the image to have pixel values between 0 and 1
+    image = image / 255.0
     return image
 
 @app.post("/predict")
 async def predict(
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
 ):
     image = read_file_as_image(await file.read())
     img_batch = np.expand_dims(image, 0)
