@@ -7,12 +7,17 @@ body {
   }
   
   .container {
-    background: #fff;
     border-radius: 10px;
     padding: 30px;
     max-width: 500px;
     margin: auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.2); /* semi-transparent */
+  backdrop-filter: blur(10px); /* background blur effect */
+  -webkit-backdrop-filter: blur(10px); /* for Safari */
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
   
   h1 {
@@ -223,7 +228,60 @@ body {
     cursor: pointer;
   }
   
-  
+  .file-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.custom-file-upload {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: #45a049;
+}
+
+.capture-btn {
+    background-color: #007BFF;
+    color: white;
+    font-size: 16px;
+    padding: 12px 65px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.capture-btn:hover {
+    background-color: #0056b3;
+}
+body {
+  background-image: url('https://res.cloudinary.com/dvxvwdrql/image/upload/v1745685806/ChatGPT_Image_Apr_27_2025_12_43_03_AM_r7digc.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.2); /* semi-transparent */
+  backdrop-filter: blur(10px); /* background blur effect */
+  -webkit-backdrop-filter: blur(10px); /* for Safari */
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+
   
   
   
