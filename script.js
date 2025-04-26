@@ -11,9 +11,6 @@ const camera = document.getElementById("camera");
 const openCameraBtn = document.getElementById("openCameraBtn");
 const capturePhotoBtn = document.getElementById("capturePhotoBtn");
 
-// Open camera
-// Open camera
-// Open camera
 openCameraBtn.addEventListener("click", () => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -25,7 +22,6 @@ openCameraBtn.addEventListener("click", () => {
 
                 // Force update capture button language again here
                 const currentLang = localStorage.getItem("lang") || "en";
-                capturePhotoBtn.textContent = translations[currentLang].capturePhoto;
             })
             .catch((err) => {
                 console.log("Error accessing camera: ", err);
@@ -35,12 +31,17 @@ openCameraBtn.addEventListener("click", () => {
     }
 });
 
-
-// Capture photo from camera
 // Capture photo from camera
 capturePhotoBtn.addEventListener("click", () => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
+
+    // Check if video is ready
+    if (!camera.videoWidth || !camera.videoHeight) {
+        alert("Camera is not ready yet. Please try again.");
+        return;
+    }
+
     const width = camera.videoWidth;
     const height = camera.videoHeight;
 
@@ -61,11 +62,15 @@ capturePhotoBtn.addEventListener("click", () => {
             cameraWrapper.style.display = "none";
 
             // Stop the camera
-            const tracks = camera.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
+            if (camera.srcObject) {
+                camera.srcObject.getTracks().forEach(track => {
+                    track.stop();
+                });
+            }
         }
     }, "image/png");
 });
+
 
 
 // Handle file upload
@@ -91,6 +96,11 @@ async function predict() {
     loading.style.display = "block";
     predictBtn.disabled = true;
 
+    const scanner = document.getElementById("scanner"); // <-- GET SCANNER
+    scanner.style.display = "block"; // <-- SHOW SCANNER
+
+    const currentLang = localStorage.getItem("lang") || "en";
+
     try {
         const response = await fetch(API_URL, {
             method: "POST",
@@ -99,9 +109,9 @@ async function predict() {
 
         const data = await response.json();
 
-        results.innerHTML = `<h3>${translations[localStorage.getItem("lang") || "en"].results}</h3>`;
+        results.innerHTML = `<h3>${translations[currentLang].results}</h3>`;
         data.predictions.forEach(pred => {
-            const assessment = generateAssessment(pred.class, pred.confidence);
+            const assessment = generateAssessment(pred.class, pred.confidence, currentLang);
             results.innerHTML += `
                 <div class="result-card">
                     <strong>${pred.class}</strong> - Confidence: ${(pred.confidence * 100).toFixed(2)}%<br/>
@@ -109,8 +119,6 @@ async function predict() {
                 </div>
             `;
         });
-        
-        
 
     } catch (error) {
         console.error("Prediction error:", error);
@@ -119,42 +127,46 @@ async function predict() {
 
     loading.style.display = "none";
     predictBtn.disabled = false;
+    scanner.style.display = "none"; // <-- HIDE SCANNER AFTER
 }
 
+
+
 // Generate Assessment
-function generateAssessment(disease, confidence) {
+function generateAssessment(disease, confidence, lang) {
     let severity;
     if (confidence > 0.85) {
-        severity = translations[savedLang].severityStrong;
+        severity = translations[lang].severityStrong;
     } else if (confidence > 0.6) {
-        severity = translations[savedLang].severityModerate;
+        severity = translations[lang].severityModerate;
     } else {
-        severity = translations[savedLang].severityWeak;
+        severity = translations[lang].severityWeak;
     }
 
     let advice;
     switch (disease) {
         case "Bacterial Blotch":
-            advice = translations[savedLang].adviceBacterialBlotch;
+            advice = translations[lang].adviceBacterialBlotch;
             break;
         case "Dry Bubble":
-            advice = translations[savedLang].adviceDryBubble;
+            advice = translations[lang].adviceDryBubble;
             break;
         case "Healthy":
-            advice = translations[savedLang].adviceHealthy;
+            advice = translations[lang].adviceHealthy;
             break;
         case "Trichoderma":
-            advice = translations[savedLang].adviceTrichoderma;
+            advice = translations[lang].adviceTrichoderma;
             break;
         case "Wilt":
-            advice = translations[savedLang].adviceWilt;
+            advice = translations[lang].adviceWilt;
             break;
         default:
             advice = "Consult agricultural experts for specific guidance.";
     }
 
-    return `${severity} ${translations[savedLang].basedOnAnalysis} <strong>${disease}</strong> ${translations[savedLang].wasDetected} ${advice}`;
+    return `${severity} ${translations[lang].basedOnAnalysis} <strong>${disease}</strong> ${translations[lang].wasDetected} ${advice}`;
 }
+
 
 // Close disclaimer modal
 function closeDisclaimer() {
@@ -258,8 +270,7 @@ function changeLanguage(lang) {
     document.querySelector('#loading').textContent = t.loading;
     document.querySelector('#results').innerHTML = `<h3>${t.results}</h3>`;
 
-    // Update capture button text here
-    document.querySelector('#capturePhotoBtn').textContent = t.capturePhoto;
+    // Update capture button text her
 }
 
 
