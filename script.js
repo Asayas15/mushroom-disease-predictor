@@ -5,19 +5,83 @@ const imageInput = document.getElementById("imageInput");
 const results = document.getElementById("results");
 const loading = document.getElementById("loading");
 const predictBtn = document.getElementById("predictBtn");
+const cameraWrapper = document.getElementById("cameraWrapper");
+const previewWrapper = document.getElementById("previewWrapper");
+const camera = document.getElementById("camera");
+const openCameraBtn = document.getElementById("openCameraBtn");
+const capturePhotoBtn = document.getElementById("capturePhotoBtn");
 
+// Open camera
+// Open camera
+// Open camera
+openCameraBtn.addEventListener("click", () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                cameraWrapper.style.display = "block";
+                previewWrapper.style.display = "none";
+                camera.srcObject = stream;
+                camera.play();
+
+                // Force update capture button language again here
+                const currentLang = localStorage.getItem("lang") || "en";
+                capturePhotoBtn.textContent = translations[currentLang].capturePhoto;
+            })
+            .catch((err) => {
+                console.log("Error accessing camera: ", err);
+            });
+    } else {
+        alert("Camera not supported");
+    }
+});
+
+
+// Capture photo from camera
+// Capture photo from camera
+capturePhotoBtn.addEventListener("click", () => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    const width = camera.videoWidth;
+    const height = camera.videoHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(camera, 0, 0, width, height);
+
+    // Convert canvas to Blob
+    canvas.toBlob((blob) => {
+        if (blob) {
+            const file = new File([blob], "captured.png", { type: "image/png" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            imageInput.files = dataTransfer.files; // <-- Set captured photo as file input!
+
+            preview.src = URL.createObjectURL(blob);
+            previewWrapper.style.display = "block";
+            cameraWrapper.style.display = "none";
+
+            // Stop the camera
+            const tracks = camera.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+        }
+    }, "image/png");
+});
+
+
+// Handle file upload
 imageInput.addEventListener("change", () => {
     const file = imageInput.files[0];
     if (file) {
         preview.src = URL.createObjectURL(file);
-        document.getElementById('previewWrapper').style.display = 'block'; // Show wrapper too
+        previewWrapper.style.display = "block";
     }
 });
 
+// Predict button
 async function predict() {
     const file = imageInput.files[0];
     if (!file) {
-        alert("Please upload an image.");
+        alert("Please upload or capture an image.");
         return;
     }
 
@@ -26,7 +90,6 @@ async function predict() {
 
     loading.style.display = "block";
     predictBtn.disabled = true;
-    document.getElementById('scanner').style.display = 'block'; // SHOW scanner effect
 
     try {
         const response = await fetch(API_URL, {
@@ -36,15 +99,18 @@ async function predict() {
 
         const data = await response.json();
 
-        results.innerHTML = `<h3>${translations[savedLang].results}</h3>`; // Translate the "Results:" title
+        results.innerHTML = `<h3>${translations[localStorage.getItem("lang") || "en"].results}</h3>`;
         data.predictions.forEach(pred => {
+            const assessment = generateAssessment(pred.class, pred.confidence);
             results.innerHTML += `
                 <div class="result-card">
                     <strong>${pred.class}</strong> - Confidence: ${(pred.confidence * 100).toFixed(2)}%<br/>
-                    <p>${generateAssessment(pred.class, pred.confidence)}</p> <!-- Display translated results -->
+                    <p>${assessment}</p>
                 </div>
             `;
         });
+        
+        
 
     } catch (error) {
         console.error("Prediction error:", error);
@@ -53,54 +119,49 @@ async function predict() {
 
     loading.style.display = "none";
     predictBtn.disabled = false;
-    document.getElementById('scanner').style.display = 'none'; // HIDE scanner effect
 }
 
+// Generate Assessment
 function generateAssessment(disease, confidence) {
-    const lang = localStorage.getItem("lang") || "en"; // Ensure we always use the selected language
-
     let severity;
     if (confidence > 0.85) {
-        severity = translations[lang].severityStrong;
+        severity = translations[savedLang].severityStrong;
     } else if (confidence > 0.6) {
-        severity = translations[lang].severityModerate;
+        severity = translations[savedLang].severityModerate;
     } else {
-        severity = translations[lang].severityWeak;
+        severity = translations[savedLang].severityWeak;
     }
 
     let advice;
     switch (disease) {
         case "Bacterial Blotch":
-            advice = translations[lang].adviceBacterialBlotch;
+            advice = translations[savedLang].adviceBacterialBlotch;
             break;
         case "Dry Bubble":
-            advice = translations[lang].adviceDryBubble;
+            advice = translations[savedLang].adviceDryBubble;
             break;
         case "Healthy":
-            advice = translations[lang].adviceHealthy;
+            advice = translations[savedLang].adviceHealthy;
             break;
         case "Trichoderma":
-            advice = translations[lang].adviceTrichoderma;
+            advice = translations[savedLang].adviceTrichoderma;
             break;
         case "Wilt":
-            advice = translations[lang].adviceWilt;
+            advice = translations[savedLang].adviceWilt;
             break;
         default:
-            advice = translations[lang].adviceBacterialBlotch; // Default advice if disease is not found
+            advice = "Consult agricultural experts for specific guidance.";
     }
 
-    // Now, both sentences are translated based on the language
-    return `
-        ${severity} ${translations[lang].basedOnAnalysis} <strong>${disease}</strong> ${translations[lang].wasDetected}
-        ${advice}
-    `;
+    return `${severity} ${translations[savedLang].basedOnAnalysis} <strong>${disease}</strong> ${translations[savedLang].wasDetected} ${advice}`;
 }
 
-
+// Close disclaimer modal
 function closeDisclaimer() {
     document.getElementById("disclaimerModal").style.display = "none";
 }
 
+// Language Handling
 const translations = {
     en: {
         disclaimerTitle: "Disclaimer",
@@ -120,10 +181,12 @@ const translations = {
         adviceWilt: "Adjust watering schedules and monitor nutrient supply carefully.",
         basedOnAnalysis: "Based on the analysis, signs of",
         wasDetected: "were detected.",
+        capturePhoto: "Capture Photo",
+
     },
     fil: {
         disclaimerTitle: "Paunawa",
-        disclaimerContent: "Ang Oyster Mushroom Disease Classifier na ito ay kasalukuyang nasa ilalim ng pag-unlad. Maaring hindi palaging tama ang mga hula at para lamang sa impormasyon. Kumonsulta pa rin sa mga eksperto sa agrikultura para sa mahahalagang desisyon.",
+        disclaimerContent: "Ang Oyster Mushroom Disease Classifier na ito ay kasalukuyang nasa ilalim ng pag-unlad...",
         buttonUnderstand: "Nauunawaan Ko",
         chooseImage: "Pumili ng Larawan ng Kabute",
         predictButton: "Hulaan ang Sakit",
@@ -139,10 +202,12 @@ const translations = {
         adviceWilt: "Ayusin ang iskedyul ng pagdidilig at obserbahan ang suplay ng sustansya.",
         basedOnAnalysis: "Batay sa pagsusuri, mga senyales ng",
         wasDetected: "ay natukoy.",
+        capturePhoto: "Kuhanan ng Larawan",
+
     },
     ilo: {
         disclaimerTitle: "Pakaammo",
-        disclaimerContent: "Ti Oyster Mushroom Disease Classifier ket agtultuloy pay ti panagsardengna. Saan a kanayon nga eksakto ti prediction ket para laeng iti impormasyon. Agkonsulta kadagiti eksperto iti agrikultura para kadagiti importanteng desisyon.",
+        disclaimerContent: "Ti Oyster Mushroom Disease Classifier ket agtultuloy pay ti panagsardengna...",
         buttonUnderstand: "Maawatan Ko",
         chooseImage: "Agpili ti Ladawan ti Kabute",
         predictButton: "Ipredict ti Sakit",
@@ -158,33 +223,44 @@ const translations = {
         adviceWilt: "Aglaksid ti oras ti panangdilig ken ikabina ti nutrisyon nga itedna.",
         basedOnAnalysis: "Base ti analisis, senyales ti",
         wasDetected: "ket naipakita.",
+        capturePhoto: "Mangala ti Ladawan",
+
     }
 };
 
+// Load previously selected language
+const savedLang = localStorage.getItem("lang") || "en";
+document.querySelector(`input[name="language"][value="${savedLang}"]`).checked = true;
+changeLanguage(savedLang);
+
+// Language selector change event
 document.querySelectorAll('input[name="language"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
         changeLanguage(e.target.value);
     });
 });
 
-// Load previously selected language from localStorage if available
-const savedLang = localStorage.getItem("lang") || "en";
-document.querySelector(`input[name="language"][value="${savedLang}"]`).checked = true;
-changeLanguage(savedLang);
-
+// Function to update texts according to selected language
 function changeLanguage(lang) {
     const t = translations[lang];
-    if (!t) return; // Safety check
+    if (!t) return;
 
-    // Save the language choice to localStorage
     localStorage.setItem("lang", lang);
 
-    // Update text content
+    // Update disclaimer modal
     document.querySelector('#disclaimerModal h2').textContent = t.disclaimerTitle;
     document.querySelector('#disclaimerModal p').textContent = t.disclaimerContent;
     document.querySelector('#disclaimerModal button').textContent = t.buttonUnderstand;
+
+    // Update image upload and prediction
     document.querySelector('.custom-file-upload').textContent = t.chooseImage;
     document.querySelector('#predictBtn').textContent = t.predictButton;
     document.querySelector('#loading').textContent = t.loading;
-    document.querySelector('#results').innerHTML = `<h3>${t.results}</h3>`; // Resets when switching language
+    document.querySelector('#results').innerHTML = `<h3>${t.results}</h3>`;
+
+    // Update capture button text here
+    document.querySelector('#capturePhotoBtn').textContent = t.capturePhoto;
 }
+
+
+
