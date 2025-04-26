@@ -281,7 +281,56 @@ body {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
+.scanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 15%; /* scanning bar height - adjust as needed */
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 255, 0, 0) 0%,
+    rgba(0, 255, 0, 0.4) 50%,
+    rgba(0, 255, 0, 0) 100%
+  );
+  animation: scan 2s linear infinite;
+  pointer-events: none;
+  border-radius: 8px;
+}
 
+@keyframes scan {
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 85%; /* stops before fully reaching bottom */
+  }
+}
+#buttonsContainer {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center; /* Ensures both buttons are horizontally centered */
+  gap: 10px; /* Space between buttons */
+}
+
+#capturePhotoBtn, #switchCameraBtn {
+  padding: 5px;
+  font-size: 20px;  /* Adjust the size of the icon */
+  background-color: #4CAF50; /* Green */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#capturePhotoBtn:hover, #switchCameraBtn:hover {
+  background-color: #45a049; /* Darker green on hover */
   
-  
-  
+}
+
+#capturePhotoBtn i, #switchCameraBtn i {
+  font-size: 20px;  /* Icon size */
+}
