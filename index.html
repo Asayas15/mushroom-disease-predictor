@@ -19,28 +19,40 @@
           <button onclick="closeDisclaimer()">I Understand</button>
         </div>
       </div>      
-  <div class="container">
-    <h1>Mushroom Disease Predictor</h1>
+      <div class="container">
+        <h1>Mushroom Disease Predictor</h1>
 
-    <label for="imageInput" class="custom-file-upload">
-        Choose a Mushroom Image
-      </label>
-      <input type="file" accept="image/*" id="imageInput" style="display: none;" />
-      
-      <div class="preview-wrapper" id="previewWrapper" style="display:none;">
-        <img id="preview" src="" alt="Image preview" />
-        <div id="scanner" class="scan-overlay" style="display: none;">
-          <div class="scan-line"></div>
-        </div>
+        <!-- File Upload and Capture Buttons -->
+        <div class="file-buttons">
+          <label for="imageInput" class="custom-file-upload">Choose a Mushroom Image</label>
+          <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          
+          <button id="openCameraBtn" class="capture-btn">Capture Image</button>
       </div>
-      
+
+<!-- Preview -->
+<div class="preview-wrapper" id="previewWrapper" style="display:none;">
+  <img id="preview" src="" alt="Image preview" />
+</div>
+
+<!-- Camera -->
+<div id="cameraWrapper" style="display:none; position: relative;">
+  <video id="camera" width="90%" height="auto" autoplay></video>
+  <button id="capturePhotoBtn" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);">
+    Capture Photo
+  </button>
+</div>
       
 
-    <button onclick="predict()" id="predictBtn">Predict Disease</button>
+        <button onclick="predict()" id="predictBtn">Predict Disease</button>
 
-    <div id="loading" class="loading">Loading...</div>
-    <div id="results"></div>
-  </div>
+        <div id="loading" style="display: none;">Loading...</div>
+        <div id="results">
+          <h3 id="resultsTitle">Results:</h3>
+          <div id="resultsContent"></div>
+        </div>
+        
+    </div>
 
   <script src="script.js"></script>
 </body>
