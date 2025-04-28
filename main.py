@@ -22,7 +22,7 @@ app.add_middleware(
 )
 
 
-MODEL = tf.keras.models.load_model("models/model.h5")
+MODEL = tf.keras.models.load_model("models/model_2.h5")
 
 CLASS_NAMES = ["Bacterial Blotch", "Dry Bubble", "Healthy", "Trichoderma", "Wilt"]
 
@@ -34,7 +34,6 @@ def read_file_as_image(data) -> np.ndarray:
     img = Image.open(BytesIO(data)).convert("RGB")
     img = img.resize((224, 224))  # or whatever size your model expects
     return np.array(img)
-
 
 @app.post("/predict")
 async def predict(

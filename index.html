@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mushroom Disease Predictor</title>
+  <h1 class="title">Oyster Mushroom Disease Predictor</h1>
   <link rel="stylesheet" href="style.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>     
     <div id="disclaimerModal" class="modal">
@@ -22,30 +23,25 @@
       </div> 
       
       <div class="container" style="margin-top: 50px;">
-        <h1>Mushroom Disease Predictor</h1>
 
         <!-- File Upload and Capture Buttons -->
         <div class="file-buttons">
-          <label for="imageInput" class="custom-file-upload">Choose a Mushroom Image</label>
+          <label for="imageInput" class="custom-file-upload">Select Image</label>
           <input type="file" id="imageInput" accept="image/*" style="display: none;">
           <button id="openCameraBtn" class="capture-btn">Capture Image</button>
-      </div>
+        </div>
 
-
-<!-- Preview -->
-<!-- Preview -->
-<div class="preview-wrapper" id="previewWrapper" style="display:none;">
-  <div class="image-container" style="position: relative; display: inline-block;">
-    <img id="preview" src="" alt="Image preview" style="max-width: 100%; height: auto;" />
-    <div id="scanner" class="scanner" style="display: none;"></div>
-  </div>
-</div>
-
-
+        <div class="preview-wrapper" id="previewWrapper" style="display:none;">
+          <div class="image-container" style="position: relative; display: inline-block;">
+            <img id="preview" src="" alt="Image preview" style="max-width: 100%; height: auto;" />
+            <div id="scanner" class="scanner" style="display: none;"></div>
+          </div>
+        </div>
 
 <!-- Camera -->
-<div id="cameraWrapper" style="display: none; position: relative;">
-  <video id="camera" width="90%" height="auto" autoplay></video>
+<!-- Camera -->
+<div id="cameraWrapper" style="display: none; position: relative; top: 10 px;">
+  <video id="camera" width="90%" height="auto" autoplay style="margin-top: 10px;"></video>
 
   <!-- Container for both buttons -->
   <div id="buttonsContainer" style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); display: flex; justify-content: center; gap: 5px;">
@@ -60,10 +56,8 @@
     </button>
 </div>
 </div>
-      
 
         <button onclick="predict()" id="predictBtn">Predict Disease</button>
-
         <div id="loading" style="display: none;">Loading...</div>
         <div id="results">
           <h3 id="resultsTitle">Results:</h3>
@@ -72,6 +66,22 @@
         
     </div>
 
+
   <script src="script.js"></script>
 </body>
+<footer class="footer">
+  <div class="footer-content">
+    <img src="https://res.cloudinary.com/dvxvwdrql/image/upload/v1745834796/csulogo.dca0af26_lz6uqa.png" alt="CSU Logo" class="footer-logo">
+    <div class="footer-text">
+      <p>CAGAYAN STATE UNIVERSITY</p>
+      <p>College of Engineering and Architecture<br>Philippine Society of Agricultural and Biosystems Engineers Pre-professional Group</p>
+    </div>
+    <div class="footer-contact">
+      <p><i class="fas fa-globe"></i> www.facebook.com</p>
+      <p><i class="fas fa-phone"></i> 0901-903-5975</p>
+      <p><i class="fas fa-envelope"></i> jhunard.asayas24@gmail.com</p>
+    </div>
+  </div>
+</footer>
+
 </html>

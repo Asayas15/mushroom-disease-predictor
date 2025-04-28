@@ -252,7 +252,7 @@ const translations = {
   },
   fil: {
     disclaimerTitle: "Paunawa",
-    disclaimerContent: "Ang Oyster Mushroom Disease Classifier na ito ay kasalukuyang nasa ilalim ng pag-unlad...",
+    disclaimerContent: "Ang Oyster Mushroom Disease Classifier na ito ay kasalukuyang nasa ilalim ng pag-develop. Maaaring hindi laging tama ang mga prediksyon at ito ay para sa layuning pampagbigay-impormasyon lamang. Laging kumonsulta sa mga eksperto sa agrikultura para sa mahahalagang desisyon.",
     buttonUnderstand: "Nauunawaan Ko",
     chooseImage: "Pumili ng Larawan ng Kabute",
     predictButton: "Hulaan ang Sakit",
@@ -272,8 +272,8 @@ const translations = {
   },
   ilo: {
     disclaimerTitle: "Pakaammo",
-    disclaimerContent: "Ti Oyster Mushroom Disease Classifier ket agtultuloy pay ti panagsardengna...",
-    buttonUnderstand: "Maawatan Ko",
+    disclaimerContent: "Daytoy nga Oyster Mushroom Disease Classifier ket agtultuloy pay ti panagaramidna. Saan a masiguro nga amin a prediksion ket eksakto, ket para laeng iti pampanunot a pakaammo. Itultuloy a kumonsulta kadagiti eksperto ti agrikultura para kadagiti napateg a desision.",
+    buttonUnderstand: "Maawatak",
     chooseImage: "Agpili ti Ladawan ti Kabute",
     predictButton: "Ipredict ti Sakit",
     loading: "Agkarkar-load...",
