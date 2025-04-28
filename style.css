@@ -10,13 +10,23 @@ body {
     padding: 30px;
     max-width: 500px;
     margin: auto;
-      background: rgba(255, 255, 255, 0.1); /* semi-transparent */
-  backdrop-filter: blur(10px); /* background blur effect */
-  -webkit-backdrop-filter: blur(10px); /* for Safari */
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 20px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.1); /* semi-transparent */
+    backdrop-filter: blur(10px); /* background blur effect */
+    -webkit-backdrop-filter: blur(10px); /* for Safari */
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    margin-left: 10px;
+    margin-right: 10px;
+    align-self: center;
+  }
+
+  .heyy {
+    background: rgba(255, 255, 255, 0.1); /* semi-transparent */
+    backdrop-filter: blur(10px); /* background blur effect */
+    -webkit-backdrop-filter: blur(10px); /* for Safari */
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
   
   .title {
@@ -25,7 +35,7 @@ body {
     font-weight: 700;
     text-align: center;
     margin: 1rem 0;
-    background: linear-gradient(90deg, #4CAF50, #8BC34A, #4CAF50);
+    background: linear-gradient(120deg, #205522, #c2ff7b, #205522);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -33,18 +43,6 @@ body {
     animation: gradient 3s linear infinite;
     padding: 0.5rem;
     position: relative;
-    
-  }
-  
-  .title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50%;
-    height: 3px;
-    background: linear-gradient(to right, transparent, #4CAF50, transparent);
   }
   
   @keyframes gradient {
@@ -64,6 +62,7 @@ body {
     max-height: 300px;
     margin-top: 15px;
     object-fit: contain;
+    border-radius: 15px;
   }
   
   button {
@@ -197,6 +196,7 @@ body {
     width: 100%;
     max-width: 100%;
     margin-top: 15px;
+    border-radius: 15px;
   }
   
   /* Scanning overlay */
@@ -223,12 +223,13 @@ body {
 
 
   .language-selector {
-    position: absolute;
-    top: 20px;
-    right: 30px;
+    width: 80%;
+    max-width: 250px;
     font-size: 14px;
     background: white;
     padding: 8px 12px;
+    align-self: center;
+    margin-top: 10px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
@@ -240,48 +241,51 @@ body {
   
   .file-buttons {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
     margin-top: 20px;
+    width: 100%;
 }
 
-.custom-file-upload {
+.custom-file-upload,
+.capture-btn {
+    min-width: 200px; /* Changed from width to min-width */
+    width: 200px; /* Fixed width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    text-align: center;
+    font-size: 16px;
+    padding: 12px 5px; /* Reduced side padding */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ... if text overflows */
+}
+  
+  .custom-file-upload {
     background-color: #4CAF50;
     color: white;
-    font-size: 16px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: inline-block;
-    transition: background-color 0.3s ease;
-    justify-content: center; /* Center the buttons horizontally */
-    margin-top: 20px;
-    margin-right: 5px;
-}
-
-.custom-file-upload:hover {
-    background-color: #45a049;
-}
-
-.capture-btn {
+  }
+  
+  .capture-btn {
     background-color: #007BFF;
     color: white;
-    font-size: 16px;
-    padding: 12px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    flex: 1; /* Makes buttons take equal width */
-    max-width: 200px; /* Optional: set a max-width if needed */
-    text-align: center;
-    margin-left: 5px;
-    margin-right: 5px;
-}
-
-.capture-btn:hover {
+  }
+  
+  .custom-file-upload:hover {
+    background-color: #45a049;
+    transform: scale(1.05); /* Add hover effect */
+  }
+  
+  .capture-btn:hover {
     background-color: #0056b3;
-}
+    transform: scale(1.05); /* Matching hover effect */
+  }
+
 body {
   background-image: url('https://res.cloudinary.com/dvxvwdrql/image/upload/v1745685806/ChatGPT_Image_Apr_27_2025_12_43_03_AM_r7digc.png');
   background-size: cover;
@@ -354,7 +358,7 @@ body {
 }
 
 .footer {
-  background-color: #7d5a3b;
+  background-color: #63574c;
   color: white;
   padding: 10px 10px;
   margin-top: 10px;
@@ -389,6 +393,61 @@ html, body {
   flex-direction: column;
 }
 
+/* Close button styles */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  line-height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 0;
+  margin: 0;
+  transition: background 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* Ensure proper positioning for containers */
+.image-container, 
+#cameraWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+#preview,
+#camera {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 15px;
+  display: block;
+  margin-top: 10px;
+}
+
+/* Adjust camera buttons container */
+#buttonsContainer {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
 
 
   

@@ -167,26 +167,34 @@ async function predict() {
 
     const data = await response.json();
 
-    results.innerHTML = `<h3>${translations[currentLang].results}</h3>`;
-    data.predictions.forEach(pred => {
-      const assessment = generateAssessment(pred.class, pred.confidence, currentLang);
-      results.innerHTML += `
-        <div class="result-card">
-          <strong>${pred.class}</strong> - Confidence: ${(pred.confidence * 100).toFixed(2)}%<br/>
-          <p>${assessment}</p>
-        </div>
-      `;
-    });
+    if (data.predictions && data.predictions.length > 0) {
+      // Only if there are predictions, set the Results section
+      let resultsHTML = `<h3>${translations[currentLang].results}</h3>`;
+      data.predictions.forEach(pred => {
+        const assessment = generateAssessment(pred.class, pred.confidence, currentLang);
+        resultsHTML += `
+          <div class="result-card">
+            <strong>${pred.class}</strong> - Confidence: ${(pred.confidence * 100).toFixed(2)}%<br/>
+            <p>${assessment}</p>
+          </div>
+        `;
+      });
+      results.innerHTML = resultsHTML;
+      results.style.display = 'block';  // Show results
+    } else {
+      results.style.display = 'none';   // Hide if no predictions
+    }
 
   } catch (error) {
     console.error("Prediction error:", error);
-    results.innerHTML = "Something went wrong. Try again.";
+    alert("An error occurred during prediction. Please try again.");
+  } finally {
+    loading.style.display = "none";
+    predictBtn.disabled = false;
+    scanner.style.display = "none";
   }
-
-  loading.style.display = "none";
-  predictBtn.disabled = false;
-  scanner.style.display = "none";
 }
+
 
 // Generate Assessment
 function generateAssessment(disease, confidence, lang) {
@@ -234,7 +242,7 @@ const translations = {
     disclaimerTitle: "Disclaimer",
     disclaimerContent: "This Oyster Mushroom Disease Classifier is currently under development. Predictions may not always be accurate and should be used for informational purposes only. Always consult agricultural experts for critical decisions.",
     buttonUnderstand: "I Understand",
-    chooseImage: "Choose a Mushroom Image",
+    chooseImage: "Choose Image",
     predictButton: "Predict Disease",
     loading: "Loading...",
     results: "Results:",
@@ -322,3 +330,19 @@ function changeLanguage(lang) {
   document.querySelector('#loading').textContent = t.loading;
   document.querySelector('#results').innerHTML = `<h3>${t.results}</h3>`;
 }
+
+// Close preview button functionality
+document.getElementById('closePreviewBtn').addEventListener('click', () => {
+  preview.src = '';
+  previewWrapper.style.display = 'none';
+  imageInput.value = ''; // Clear the file input
+});
+
+// Close camera button functionality
+document.getElementById('closeCameraBtn').addEventListener('click', () => {
+  if (currentStream) {
+    stopMediaTracks(currentStream);
+    currentStream = null;
+  }
+  cameraWrapper.style.display = 'none';
+});
