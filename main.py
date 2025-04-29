@@ -2,7 +2,7 @@ import os
 import requests
 
 MODEL_PATH = "models/best.pt"
-MODEL_URL = "https://drive.google.com/file/d/1EwE0CgNwB7ujz0VfPOUdK1lCiQ9f-DnH/view?usp=sharing"  # Replace with real link
+MODEL_URL = "https://drive.google.com/uc?export=download&id=1EwE0CgNwB7ujz0VfPOUdK1lCiQ9f-DnH"
 
 # Create folder and download model if missing
 if not os.path.exists(MODEL_PATH):
