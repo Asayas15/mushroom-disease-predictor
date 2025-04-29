@@ -1,3 +1,19 @@
+import os
+import requests
+
+MODEL_PATH = "models/best.pt"
+MODEL_URL = "https://drive.google.com/file/d/1EwE0CgNwB7ujz0VfPOUdK1lCiQ9f-DnH/view?usp=sharing"  # Replace with real link
+
+# Create folder and download model if missing
+if not os.path.exists(MODEL_PATH):
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    print("Downloading model...")
+    r = requests.get(MODEL_URL)
+    with open(MODEL_PATH, "wb") as f:
+        f.write(r.content)
+    print("Model downloaded successfully.")
+
+
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -6,6 +22,8 @@ from io import BytesIO
 from PIL import Image
 import cv2
 from ultralytics import YOLO
+MODEL = YOLO(MODEL_PATH)
+
 
 app = FastAPI()
 
