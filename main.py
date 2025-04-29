@@ -1,11 +1,11 @@
-
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import numpy as np
 from io import BytesIO
 from PIL import Image
-import tensorflow as tf
+import cv2
+from ultralytics import YOLO
 
 app = FastAPI()
 
@@ -15,16 +15,17 @@ origins = [
 ]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow ANY origin
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Load YOLOv8 model
+MODEL = YOLO("models/best.pt")
 
-MODEL = tf.keras.models.load_model("models/model_2.h5")
-
-CLASS_NAMES = ["Bacterial Blotch", "Dry Bubble", "Healthy", "Trichoderma", "Wilt"]
+# Load class names from model
+CLASS_NAMES = MODEL.names  # {0: 'Bacterial Blotch', 1: 'Dry Bubble', etc.}
 
 @app.get("/ping")
 async def ping():
@@ -32,33 +33,42 @@ async def ping():
 
 def read_file_as_image(data) -> np.ndarray:
     img = Image.open(BytesIO(data)).convert("RGB")
-    img = img.resize((224, 224))  # or whatever size your model expects
     return np.array(img)
 
 @app.post("/predict")
-async def predict(
-    file: UploadFile = File(...)
-):
-    image = read_file_as_image(await file.read())
-    img_batch = np.expand_dims(image, 0)
+async def predict(file: UploadFile = File(...)):
+    image_data = await file.read()
+    image = read_file_as_image(image_data)
 
-    predictions = MODEL.predict(img_batch)[0]  # Get the prediction array for one sample
+    # Convert image to OpenCV format
+    img_cv2 = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    # Get indices of top 2 predictions
-    top_indices = predictions.argsort()[-2:][::-1]  # descending order
+    # Run detection
+    results = MODEL(img_cv2, verbose=False)
 
-    top_classes = [
-        {
-            'class': CLASS_NAMES[i],
-            'confidence': float(predictions[i])
-        }
-        for i in top_indices
-    ]
+    prediction_list = []
+
+    if results and results[0].boxes is not None:
+        detections = results[0].boxes
+
+        for detection in detections:
+            xyxy = detection.xyxy.cpu().numpy().squeeze()
+            xmin, ymin, xmax, ymax = xyxy.astype(int)
+
+            class_id = int(detection.cls.item())
+            class_name = CLASS_NAMES[class_id]
+
+            confidence = float(detection.conf.item())
+
+            prediction_list.append({
+                "class": class_name,
+                "confidence": confidence,
+                "box": [int(xmin), int(ymin), int(xmax), int(ymax)]
+            })
 
     return {
-        'predictions': top_classes
+        "detections": prediction_list
     }
 
-
 if __name__ == "__main__":
-    uvicorn.run(app, host='localhost', port=8000)
+    uvicorn.run(app, host="localhost", port=8001)  # Use port 8001 to avoid conflicts

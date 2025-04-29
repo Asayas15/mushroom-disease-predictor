@@ -1,6 +1,13 @@
-const API_URL = "https://mushroom-disease-predictor.onrender.com/predict";
+const API_URL = "http://localhost:8001/predict";
 
-// DOM Elements
+const classColors = {
+  "Bacterial Blotch": "orange",
+  "Dry Bubble": "red",
+  "Healthy": "lime",
+  "Trichoderma": "purple",
+  "Wilt": "blue",
+};
+
 const preview = document.getElementById("preview");
 const imageInput = document.getElementById("imageInput");
 const results = document.getElementById("results");
@@ -13,33 +20,18 @@ const openCameraBtn = document.getElementById("openCameraBtn");
 const capturePhotoBtn = document.getElementById("capturePhotoBtn");
 const switchCameraBtn = document.getElementById("switchCameraBtn");
 
-// Camera state variables
 let currentStream = null;
 let usingFrontCamera = false;
 
-// Helper function to stop media tracks
 function stopMediaTracks(stream) {
-  stream.getTracks().forEach(track => {
-    track.stop();
-  });
+  stream.getTracks().forEach(track => track.stop());
 }
 
-// Function to switch between front and back cameras
 function switchCamera() {
   if (!currentStream) return;
-  
-  // Stop the current stream
   stopMediaTracks(currentStream);
-  
-  // Toggle camera facing mode
   usingFrontCamera = !usingFrontCamera;
-  
-  const constraints = {
-    video: {
-      facingMode: usingFrontCamera ? "user" : "environment"
-    }
-  };
-  
+  const constraints = { video: { facingMode: usingFrontCamera ? "user" : "environment" } };
   navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
       currentStream = stream;
@@ -47,30 +39,21 @@ function switchCamera() {
     })
     .catch(error => {
       console.error("Error switching camera:", error);
-      alert("Error switching camera. Please try again.");
+      alert("Error switching camera.");
     });
 }
 
-// Open camera when button is clicked
 openCameraBtn.addEventListener("click", () => {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    const constraints = {
-      video: {
-        facingMode: "environment" // Start with rear camera by default
-      }
-    };
-    
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then((stream) => {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(stream => {
         currentStream = stream;
         cameraWrapper.style.display = "block";
         previewWrapper.style.display = "none";
         camera.srcObject = stream;
         usingFrontCamera = false;
       })
-      .catch((err) => {
-        console.log("Error accessing rear camera: ", err);
-        // If rear camera fails, try front camera
+      .catch(() => {
         navigator.mediaDevices.getUserMedia({ video: true })
           .then(stream => {
             currentStream = stream;
@@ -79,68 +62,63 @@ openCameraBtn.addEventListener("click", () => {
             camera.srcObject = stream;
             usingFrontCamera = true;
           })
-          .catch(error => {
-            console.log("Error accessing any camera: ", error);
-            alert("Camera not accessible");
-          });
+          .catch(() => alert("Camera not accessible"));
       });
   } else {
     alert("Camera not supported");
   }
 });
 
-// Capture photo from camera
 capturePhotoBtn.addEventListener("click", () => {
   if (!currentStream) return;
-  
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
 
-  // Check if video is ready
   if (!camera.videoWidth || !camera.videoHeight) {
-    alert("Camera is not ready yet. Please try again.");
+    alert("Camera not ready yet.");
     return;
   }
 
-  const width = camera.videoWidth;
-  const height = camera.videoHeight;
+  canvas.width = camera.videoWidth;
+  canvas.height = camera.videoHeight;
+  context.drawImage(camera, 0, 0, canvas.width, canvas.height);
 
-  canvas.width = width;
-  canvas.height = height;
-  context.drawImage(camera, 0, 0, width, height);
-
-  // Convert canvas to Blob
-  canvas.toBlob((blob) => {
+  canvas.toBlob(blob => {
     if (blob) {
       const file = new File([blob], "captured.png", { type: "image/png" });
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
       imageInput.files = dataTransfer.files;
 
+      clearOldPreview();
+
       preview.src = URL.createObjectURL(blob);
       previewWrapper.style.display = "block";
       cameraWrapper.style.display = "none";
-
-      // Stop the camera
       stopMediaTracks(currentStream);
       currentStream = null;
     }
   }, "image/png");
 });
 
-// Switch camera button event listener
 switchCameraBtn.addEventListener("click", switchCamera);
 
-// Handle file upload
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
   if (file) {
+    clearOldPreview();
     preview.src = URL.createObjectURL(file);
     previewWrapper.style.display = "block";
   }
 });
 
-// Predict button functionality
+function clearOldPreview() {
+  const oldCanvas = document.getElementById("overlayCanvas");
+  if (oldCanvas) oldCanvas.remove();
+  results.innerHTML = '';
+  results.style.display = 'none';
+}
+
 async function predict() {
   const file = imageInput.files[0];
   if (!file) {
@@ -153,7 +131,6 @@ async function predict() {
 
   loading.style.display = "block";
   predictBtn.disabled = true;
-
   const scanner = document.getElementById("scanner");
   scanner.style.display = "block";
 
@@ -166,23 +143,93 @@ async function predict() {
     });
 
     const data = await response.json();
+    const filteredDetections = data.detections.filter(det => det.confidence >= 0.4);
 
-    if (data.predictions && data.predictions.length > 0) {
-      // Only if there are predictions, set the Results section
+    if (filteredDetections.length > 0) {
+      const imgElement = document.getElementById("preview");
+      clearOldPreview();
+
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      const image = new Image();
+      image.src = imgElement.src;
+
+      image.onload = function () {
+        const previewWidth = imgElement.clientWidth;
+        const previewHeight = imgElement.clientHeight;
+
+        console.log("Image loaded:");
+        console.log("→ Natural size:", image.naturalWidth, image.naturalHeight);
+        console.log("→ Preview size:", previewWidth, previewHeight);
+
+        if (previewWidth === 0 || previewHeight === 0) {
+          console.warn("Image has zero width or height — skipping boxes.");
+          return;
+        }
+
+        canvas.width = previewWidth;
+        canvas.height = previewHeight;
+        canvas.style.position = "absolute";
+        canvas.style.left = "0px";
+        canvas.style.top = "0px";
+        canvas.style.pointerEvents = "none";
+        canvas.style.zIndex = 10;
+        canvas.id = "overlayCanvas";
+
+        // Optional red background to confirm canvas visibility
+        context.fillStyle = "rgba(255,0,0,0.05)";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        previewWrapper.appendChild(canvas);
+
+        const xScale = previewWidth / image.naturalWidth;
+        const yScale = previewHeight / image.naturalHeight;
+
+        filteredDetections.forEach(det => {
+          const [xmin, ymin, xmax, ymax] = det.box;
+          const x1 = xmin * xScale;
+          const y1 = ymin * yScale;
+          const x2 = xmax * xScale;
+          const y2 = ymax * yScale;
+
+          const boxColor = classColors[det.class] || "lime";
+          context.strokeStyle = boxColor;
+          context.lineWidth = 2;
+          context.strokeRect(x1, y1, x2 - x1, y2 - y1);
+
+          context.fillStyle = boxColor;
+          context.font = "16px Arial";
+          context.fillText(`${det.class} ${(det.confidence * 100).toFixed(1)}%`, x1, y1 > 20 ? y1 - 5 : y1 + 20);
+        });
+      };
+
+      const groupedDetections = {};
+      filteredDetections.forEach(det => {
+        if (!groupedDetections[det.class]) {
+          groupedDetections[det.class] = [];
+        }
+        groupedDetections[det.class].push(det.confidence);
+      });
+
       let resultsHTML = `<h3>${translations[currentLang].results}</h3>`;
-      data.predictions.forEach(pred => {
-        const assessment = generateAssessment(pred.class, pred.confidence, currentLang);
+      for (const [disease, confidences] of Object.entries(groupedDetections)) {
+        const avg = confidences.reduce((sum, c) => sum + c, 0) / confidences.length;
+        const assessment = generateAssessment(disease, avg, currentLang);
+        const color = classColors[disease] || "#4e4e4e";
+
         resultsHTML += `
-          <div class="result-card">
-            <strong>${pred.class}</strong> - Confidence: ${(pred.confidence * 100).toFixed(2)}%<br/>
+          <div class="result-card" style="border-left: 5px solid ${color}; padding-left:10px;">
+            <strong style="color:${color}">${disease}</strong> - Confidence: ${(avg * 100).toFixed(2)}%<br/>
             <p>${assessment}</p>
           </div>
         `;
-      });
+      }
+
       results.innerHTML = resultsHTML;
-      results.style.display = 'block';  // Show results
+      results.style.display = "block";
+
     } else {
-      results.style.display = 'none';   // Hide if no predictions
+      results.style.display = "none";
     }
 
   } catch (error) {
@@ -194,7 +241,6 @@ async function predict() {
     scanner.style.display = "none";
   }
 }
-
 
 // Generate Assessment
 function generateAssessment(disease, confidence, lang) {
@@ -335,14 +381,14 @@ function changeLanguage(lang) {
 document.getElementById('closePreviewBtn').addEventListener('click', () => {
   preview.src = '';
   previewWrapper.style.display = 'none';
-  imageInput.value = ''; // Clear the file input
+  imageInput.value = '';
+  clearOldPreview();
 });
 
-// Close camera button functionality
 document.getElementById('closeCameraBtn').addEventListener('click', () => {
   if (currentStream) {
     stopMediaTracks(currentStream);
     currentStream = null;
   }
-  cameraWrapper.style.display = 'none';
+  cameraWrapper.style.display = "none";
 });
