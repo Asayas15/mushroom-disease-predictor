@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8001/predict";
+const API_URL = "https://mushroom-disease-predictor.onrender.com/predict";
 
 const classColors = {
   "Bacterial Blotch": "orange",
